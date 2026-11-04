@@ -109,13 +109,16 @@ class ExtractiveAnswerGenerator:
         q_terms = set(tokenize(question))
         scored: list[tuple[float, int, str]] = []
         for i, item in enumerate(chunks, start=1):
-            for sentence in _SENTENCE_RE.split(item.chunk.content.replace("\n", " ")):
+            sentences = _SENTENCE_RE.split(item.chunk.content.replace("\n", " "))
+            for pos, sentence in enumerate(sentences):
                 terms = set(tokenize(sentence))
-                if not terms:
-                    continue
                 overlap = len(q_terms & terms)
-                if overlap:
-                    scored.append((overlap / (len(terms) ** 0.5), i, sentence.strip()))
+                if not overlap:
+                    continue
+                score = overlap / (len(terms) ** 0.5)
+                if len(terms) < 6 and pos > 0:  # very short hit: keep the lead-in sentence
+                    sentence = f"{sentences[pos - 1].strip()} {sentence.strip()}"
+                scored.append((score, i, sentence.strip()))
         if not scored:
             return NO_ANSWER
         scored.sort(key=lambda s: s[0], reverse=True)
