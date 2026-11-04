@@ -1,0 +1,19 @@
+[project]
+name = "smartrag-backend"
+version = "1.0.0"
+description = "Enterprise RAG API with hybrid retrieval and an LLM-as-a-Judge evaluation layer"
+requires-python = ">=3.11"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "ASYNC"]
+ignore = ["B008"]  # FastAPI's Depends() in argument defaults is idiomatic
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+filterwarnings = ["ignore::DeprecationWarning"]
