@@ -19,17 +19,33 @@ _STOPWORD_TEXT = """
 STOPWORDS = frozenset(_STOPWORD_TEXT.split())
 
 
+def _stem(token: str) -> str:
+    """Very light plural folding ("policies" -> "policy", "passwords" -> "password").
+
+    Deliberately conservative: aggressive stemmers mangle identifiers and codes,
+    which are exactly what the keyword retriever is there to match.
+    """
+    if len(token) <= 4 or not token.isalpha():
+        return token
+    if token.endswith("ies"):
+        return token[:-3] + "y"
+    if token.endswith("s") and not token.endswith(("ss", "us", "is")):
+        return token[:-1]
+    return token
+
+
 def tokenize(text: str, *, keep_stopwords: bool = False) -> list[str]:
     tokens = _TOKEN_RE.findall(text.lower())
-    if keep_stopwords:
-        return tokens
-    return [t for t in tokens if t not in STOPWORDS]
+    if not keep_stopwords:
+        tokens = [t for t in tokens if t not in STOPWORDS]
+    return [_stem(t) for t in tokens]
 
 
 def normalize_whitespace(text: str) -> str:
     text = text.replace("\x00", "")
-    # Re-join words hyphenated across line breaks: "retriev-\nal" -> "retrieval".
-    text = re.sub(r"(\w)-\n(\w)", r"\1\2", text)
     text = re.sub(r"[ \t\f\v]+", " ", text)
+    text = re.sub(r" *\n *", "\n", text)
+    # Re-join words hyphenated across line breaks: "retriev-\nal" -> "retrieval".
+    text = re.sub(r"([a-z])-\n([a-z])", r"\1\2", text)
     text = re.sub(r"\n{3,}", "\n\n", text)
     return text.strip()

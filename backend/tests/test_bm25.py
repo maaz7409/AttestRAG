@@ -52,3 +52,10 @@ async def test_rebuild_replaces_contents():
     await index.rebuild([chunk("new content")])
     assert index.search("old", k=5) == []
     assert len(index.search("new", k=5)) == 1
+
+
+async def test_plural_forms_match():
+    index = BM25Index()
+    target = chunk("Passwords must have at least 14 characters.")
+    await index.add([target, chunk("Laptops use disk encryption.")])
+    assert index.search("minimum password length", k=1)[0][0].chunk_id == target.chunk_id

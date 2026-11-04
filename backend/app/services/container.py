@@ -73,7 +73,11 @@ class Services:
 
 def build_services(settings: Settings, qdrant: AsyncQdrantClient | None = None) -> Services:
     db = Database(settings.database_url)
-    qdrant = qdrant or AsyncQdrantClient(url=settings.qdrant_url, api_key=settings.qdrant_api_key)
+    if qdrant is None:
+        if settings.qdrant_url == ":memory:":  # embedded mode for local dev without a server
+            qdrant = AsyncQdrantClient(location=":memory:")
+        else:
+            qdrant = AsyncQdrantClient(url=settings.qdrant_url, api_key=settings.qdrant_api_key)
     vector_store = QdrantStore(qdrant, settings.qdrant_collection, settings.vector_size)
     bm25 = BM25Index()
     embeddings = build_embeddings(settings)

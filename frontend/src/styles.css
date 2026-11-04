@@ -509,6 +509,7 @@ h2 {
 .sources {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  align-items: start;
   gap: 8px;
 }
 
@@ -519,6 +520,7 @@ h2 {
   border-radius: var(--radius-sm);
   background: var(--surface-1);
   display: grid;
+  align-content: start;
   gap: 4px;
   transition: border-color 0.15s;
 }
@@ -562,7 +564,6 @@ h2 {
 
 .source.expanded .source-snippet {
   -webkit-line-clamp: unset;
-  white-space: pre-wrap;
 }
 
 .source-scores {
