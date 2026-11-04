@@ -118,7 +118,7 @@ class LLMJudge:
 
 
 _TOXIC_TERMS = frozenset(
-    """idiot stupid moron dumb hate kill die loser shut worthless pathetic disgusting""".split()
+    {"idiot", "stupid", "moron", "dumb", "hate", "kill", "die", "loser", "shut", "worthless"}
 )
 _CITATION_RE = re.compile(r"\[\d+(?:\s*,\s*\d+)*\]")
 _SENTENCE_RE = re.compile(r"(?<=[.!?])\s+")
