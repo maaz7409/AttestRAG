@@ -1,5 +1,5 @@
 [project]
-name = "smartrag-backend"
+name = "attest-rag-backend"
 version = "1.0.0"
 description = "Enterprise RAG API with hybrid retrieval and an LLM-as-a-Judge evaluation layer"
 requires-python = ">=3.11"

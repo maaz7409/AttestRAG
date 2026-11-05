@@ -4,7 +4,7 @@ name: CD
 # main, then (optionally) rolls them out to a cloud VM over SSH.
 #
 # To enable deployment, configure in Settings -> Secrets and variables -> Actions:
-#   variables: DEPLOY_ENABLED=true, DEPLOY_PATH=/opt/smartrag (optional)
+#   variables: DEPLOY_ENABLED=true, DEPLOY_PATH=/opt/attest-rag (optional)
 #   secrets:   DEPLOY_HOST, DEPLOY_USER, DEPLOY_SSH_KEY
 # The server needs Docker + the compose plugin and a `.env` in DEPLOY_PATH.
 
@@ -61,7 +61,7 @@ jobs:
     if: vars.DEPLOY_ENABLED == 'true'
     environment: production
     env:
-      DEPLOY_PATH: ${{ vars.DEPLOY_PATH || '/opt/smartrag' }}
+      DEPLOY_PATH: ${{ vars.DEPLOY_PATH || '/opt/attest-rag' }}
     steps:
       - uses: actions/checkout@v5
       - name: Image prefix

@@ -1,4 +1,4 @@
-# SmartRAG: the full stack in one command.
+# Attest RAG: the full stack in one command.
 #
 #   cp .env.example .env   # add your OPENAI_API_KEY (or set LLM_PROVIDER=fake)
 #   docker compose up --build
@@ -8,16 +8,16 @@
 # In production the CD pipeline sets IMAGE_PREFIX / IMAGE_TAG and runs
 # `docker compose pull && docker compose up -d --no-build` with prebuilt images.
 
-name: smartrag
+name: attest-rag
 
 services:
   postgres:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-smartrag}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-smartrag}
-      POSTGRES_DB: ${POSTGRES_DB:-smartrag}
+      POSTGRES_USER: ${POSTGRES_USER:-attestrag}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-attestrag}
+      POSTGRES_DB: ${POSTGRES_DB:-attestrag}
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
@@ -36,13 +36,13 @@ services:
 
   backend:
     build: ./backend
-    image: ${IMAGE_PREFIX:-smartrag}/backend:${IMAGE_TAG:-latest}
+    image: ${IMAGE_PREFIX:-attest-rag}/backend:${IMAGE_TAG:-latest}
     restart: unless-stopped
     env_file:
       - path: .env
         required: false
     environment:
-      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-smartrag}:${POSTGRES_PASSWORD:-smartrag}@postgres:5432/${POSTGRES_DB:-smartrag}
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-attestrag}:${POSTGRES_PASSWORD:-attestrag}@postgres:5432/${POSTGRES_DB:-attestrag}
       QDRANT_URL: http://qdrant:6333
       LLM_PROVIDER: ${LLM_PROVIDER:-openai}
     depends_on:
@@ -55,7 +55,7 @@ services:
 
   frontend:
     build: ./frontend
-    image: ${IMAGE_PREFIX:-smartrag}/frontend:${IMAGE_TAG:-latest}
+    image: ${IMAGE_PREFIX:-attest-rag}/frontend:${IMAGE_TAG:-latest}
     restart: unless-stopped
     depends_on:
       backend:

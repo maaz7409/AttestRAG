@@ -38,7 +38,7 @@ export default function Layout() {
           <span className="brand-mark">
             <ShieldCheck size={18} />
           </span>
-          SmartRAG
+          Attest RAG
         </div>
         {NAV.map(({ to, label, icon: Icon, end }) => (
           <NavLink key={to} to={to} end={end} className="nav-link">

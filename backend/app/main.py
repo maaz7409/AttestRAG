@@ -28,7 +28,7 @@ def create_app(
         await services.startup()
         app.state.services = services
         logger.info(
-            "SmartRAG ready (provider=%s, guardrail_mode=%s, judge=%s)",
+            "Attest RAG ready (provider=%s, guardrail_mode=%s, judge=%s)",
             settings.llm_provider,
             settings.guardrail_mode,
             settings.judge_enabled,
@@ -39,7 +39,7 @@ def create_app(
             await services.shutdown()
 
     app = FastAPI(
-        title="SmartRAG API",
+        title="Attest RAG API",
         version="1.0.0",
         description="Enterprise document QA with hybrid retrieval and LLM-as-a-Judge evaluation.",
         lifespan=lifespan,

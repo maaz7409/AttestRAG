@@ -20,16 +20,16 @@ jobs:
       postgres:
         image: postgres:16-alpine
         env:
-          POSTGRES_USER: smartrag
-          POSTGRES_PASSWORD: smartrag
-          POSTGRES_DB: smartrag_test
+          POSTGRES_USER: attestrag
+          POSTGRES_PASSWORD: attestrag
+          POSTGRES_DB: attestrag_test
         ports: ["5432:5432"]
         options: >-
-          --health-cmd "pg_isready -U smartrag"
+          --health-cmd "pg_isready -U attestrag"
           --health-interval 5s --health-timeout 5s --health-retries 10
     env:
       # Run the suite against real PostgreSQL (Qdrant runs embedded in-process).
-      TEST_DATABASE_URL: postgresql+asyncpg://smartrag:smartrag@localhost:5432/smartrag_test
+      TEST_DATABASE_URL: postgresql+asyncpg://attestrag:attestrag@localhost:5432/attestrag_test
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6

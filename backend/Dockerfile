@@ -13,8 +13,8 @@ RUN pip install -r requirements.txt
 
 COPY app ./app
 
-RUN useradd --create-home --uid 10001 smartrag
-USER smartrag
+RUN useradd --create-home --uid 10001 attestrag
+USER attestrag
 
 EXPOSE 8000
 

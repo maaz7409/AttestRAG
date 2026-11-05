@@ -26,7 +26,7 @@ export interface AssistantMessage {
 export type Message = UserMessage | AssistantMessage;
 
 function sessionId(): string {
-  const KEY = "smartrag.session";
+  const KEY = "attest-rag.session";
   try {
     const existing = sessionStorage.getItem(KEY);
     if (existing) return existing;

@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     )
 
     # --- General -----------------------------------------------------------
-    app_name: str = "SmartRAG"
+    app_name: str = "Attest RAG"
     environment: str = "development"
     log_level: str = "INFO"
     cors_origins: Annotated[list[str], NoDecode] = Field(
@@ -34,10 +34,10 @@ class Settings(BaseSettings):
     llm_temperature: float = 0.1
 
     # --- Storage -----------------------------------------------------------
-    database_url: str = "postgresql+asyncpg://smartrag:smartrag@localhost:5432/smartrag"
+    database_url: str = "postgresql+asyncpg://attestrag:attestrag@localhost:5432/attestrag"
     qdrant_url: str = "http://localhost:6333"
     qdrant_api_key: str | None = None
-    qdrant_collection: str = "smartrag_chunks"
+    qdrant_collection: str = "attestrag_chunks"
 
     # --- Ingestion ---------------------------------------------------------
     chunk_size: int = 1000

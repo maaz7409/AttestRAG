@@ -1,8 +1,8 @@
-# SmartRAG
+# Attest RAG
 
 **Ask questions about your company's PDFs and get answers you can trust, with every claim cited to its source page and checked by an AI judge before you see it.**
 
-SmartRAG is an end-to-end enterprise document Q&A platform. Upload policies, contracts, manuals or reports; ask questions in plain language; get a streamed answer with clickable citations. Behind the scenes, a **hybrid retrieval pipeline** (Qdrant dense vectors + BM25 keyword search) finds the right passages. A second model, the **LLM-as-a-Judge**, then grades every answer for **faithfulness, context relevance and toxicity** and withholds the ones that fail. Every question, source and score is logged to **PostgreSQL** and shown on an **analytics dashboard**.
+Attest RAG is an end-to-end enterprise document Q&A platform. Upload policies, contracts, manuals or reports; ask questions in plain language; get a streamed answer with clickable citations. Behind the scenes, a **hybrid retrieval pipeline** (Qdrant dense vectors + BM25 keyword search) finds the right passages. A second model, the **LLM-as-a-Judge**, then grades every answer for **faithfulness, context relevance and toxicity** and withholds the ones that fail. Every question, source and score is logged to **PostgreSQL** and shown on an **analytics dashboard**.
 
 ![Chat with streamed answer, inline citations, judge verdict and sources](docs/screenshots/chat.png)
 
@@ -10,11 +10,11 @@ SmartRAG is an end-to-end enterprise document Q&A platform. Upload policies, con
 
 ---
 
-## Why SmartRAG?
+## Why Attest RAG?
 
 Plain chatbots over documents have three problems in a business setting:
 
-| Problem | How SmartRAG handles it |
+| Problem | How Attest RAG handles it |
 |---|---|
 | **They miss things.** Vector search alone fails on exact terms like policy codes, clause numbers, product SKUs and names. | **Hybrid retrieval**: semantic search (OpenAI `text-embedding-3-small` in Qdrant) **plus** BM25 keyword search, merged with Reciprocal Rank Fusion. |
 | **They make things up.** LLMs can state plausible facts that are nowhere in your documents. | **LLM-as-a-Judge** checks every answer against the retrieved passages and **blocks** hallucinated or toxic answers before delivery. |
@@ -67,8 +67,8 @@ Plain chatbots over documents have three problems in a business setting:
 You need [Docker](https://docs.docker.com/get-docker/) with the Compose plugin.
 
 ```bash
-git clone https://github.com/maaz7409/SmartRAG.git
-cd SmartRAG
+git clone https://github.com/maaz7409/attest-rag.git
+cd attest-rag
 cp .env.example .env
 # edit .env and set OPENAI_API_KEY=sk-...
 docker compose up --build
@@ -78,7 +78,7 @@ Then open:
 
 | URL | What |
 |---|---|
-| http://localhost:3000 | SmartRAG web app |
+| http://localhost:3000 | Attest RAG web app |
 | http://localhost:8000/docs | Interactive API documentation (Swagger) |
 | http://localhost:6333/dashboard | Qdrant web UI |
 
@@ -120,7 +120,7 @@ npm run dev                              # http://localhost:5173 (proxies /api t
 
 ```bash
 cd backend && pytest -q                  # 37 tests: SQLite + in-memory Qdrant by default
-TEST_DATABASE_URL=postgresql+asyncpg://user:pass@localhost:5432/smartrag_test pytest -q
+TEST_DATABASE_URL=postgresql+asyncpg://user:pass@localhost:5432/attestrag_test pytest -q
 
 cd frontend && npm test                  # SSE parser, citation parser, chat state reducer
 npm run typecheck && npm run build
@@ -140,7 +140,7 @@ All settings are environment variables (see [`.env.example`](.env.example)).
 | `CHAT_MODEL` / `JUDGE_MODEL` | `gpt-4o-mini` | Answer generator / evaluator models |
 | `EMBEDDING_MODEL` / `EMBEDDING_DIM` | `text-embedding-3-small` / `1536` | Dense embedding model and vector size |
 | `DATABASE_URL` | `postgresql+asyncpg://…localhost…` | PostgreSQL connection string |
-| `QDRANT_URL` / `QDRANT_API_KEY` / `QDRANT_COLLECTION` | `http://localhost:6333` / – / `smartrag_chunks` | Vector store (`:memory:` for embedded mode) |
+| `QDRANT_URL` / `QDRANT_API_KEY` / `QDRANT_COLLECTION` | `http://localhost:6333` / – / `attestrag_chunks` | Vector store (`:memory:` for embedded mode) |
 | `CHUNK_SIZE` / `CHUNK_OVERLAP` | `1000` / `150` | Characters per chunk / overlap |
 | `DENSE_TOP_K` / `SPARSE_TOP_K` | `20` / `20` | Candidates fetched from each retriever |
 | `FINAL_TOP_K` | `6` | Passages handed to the LLM after fusion |
@@ -201,7 +201,7 @@ data: {"type":"done","status":"answered","cited":[1],"latency":{"total_ms":1840.
 ## Project structure
 
 ```
-SmartRAG/
+attest-rag/
 ├── backend/                  FastAPI service
 │   ├── app/
 │   │   ├── api/routes/       HTTP endpoints (documents, chat, queries, analytics, health)
@@ -235,5 +235,5 @@ SmartRAG/
 - Scanned, image-only PDFs need OCR first (they are rejected with a clear message).
 - The BM25 index lives in process memory (it is rebuilt from PostgreSQL at start-up). For multi-replica deployments, move keyword search to Qdrant sparse vectors or OpenSearch.
 - The schema is created automatically at start-up. Add Alembic migrations before evolving it in production.
-- There is no authentication yet. Put SmartRAG behind your SSO or reverse proxy, or add OAuth2 to FastAPI.
+- There is no authentication yet. Put Attest RAG behind your SSO or reverse proxy, or add OAuth2 to FastAPI.
 - Possible next steps: cross-encoder re-ranking, query rewriting for follow-up questions, DOCX/HTML ingestion, and per-tenant document permissions.

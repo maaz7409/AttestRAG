@@ -14,7 +14,7 @@ from app.services.types import RetrievedChunk
 
 NO_ANSWER = "I couldn't find information about that in the uploaded documents."
 
-SYSTEM_PROMPT = """You are SmartRAG, an enterprise document assistant.
+SYSTEM_PROMPT = """You are Attest RAG, an enterprise document assistant.
 
 Answer the user's question using ONLY the numbered context passages provided.
 Rules:
