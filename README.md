@@ -4,7 +4,7 @@
 
 Attest RAG is an end-to-end enterprise document Q&A platform. Upload policies, contracts, manuals or reports; ask questions in plain language; get a streamed answer with clickable citations. Behind the scenes, a **hybrid retrieval pipeline** (Qdrant dense vectors + BM25 keyword search) finds the right passages. A second model, the **LLM-as-a-Judge**, then grades every answer for **faithfulness, context relevance and toxicity** and withholds the ones that fail. Every question, source and score is logged to **PostgreSQL** and shown on an **analytics dashboard**.
 
-![Chat with streamed answer, inline citations, judge verdict and sources](docs/screenshots/chat.png)
+![Chat with streamed answer, inline citations, judge verdict and sources](docs/screenshots/attest-rag-chat.png)
 
 <sub>Screenshots were taken in the built-in offline mode (`LLM_PROVIDER=fake`). With OpenAI configured, answers are written by `gpt-4o-mini` and graded by the LLM judge.</sub>
 
@@ -36,7 +36,7 @@ Plain chatbots over documents have three problems in a business setting:
 
 | Analytics dashboard | Document management |
 |---|---|
-| ![Analytics](docs/screenshots/analytics.png) | ![Documents](docs/screenshots/documents.png) |
+| ![Analytics](docs/screenshots/attest-rag-analytics.png) | ![Documents](docs/screenshots/attest-rag-documents.png) |
 
 ## How it works
 
