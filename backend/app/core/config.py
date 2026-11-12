@@ -1,10 +1,13 @@
 """Application settings, loaded from environment variables (and an optional `.env`)."""
 
 from functools import lru_cache
-from typing import Annotated, Literal
+from typing import Annotated, Literal, Self
 
-from pydantic import Field, field_validator
+from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
+
+# Used for CHAT_MODEL and JUDGE_MODEL when LLM_PROVIDER=groq and they are unset.
+GROQ_DEFAULT_MODEL = "openai/gpt-oss-20b"
 
 
 class Settings(BaseSettings):
@@ -65,6 +68,14 @@ class Settings(BaseSettings):
     faithfulness_threshold: float = 0.6
     context_relevance_threshold: float = 0.4
     toxicity_threshold: float = 0.5
+
+    @model_validator(mode="after")
+    def _apply_groq_model_defaults(self) -> Self:
+        if self.llm_provider == "groq":
+            for field in ("chat_model", "judge_model"):
+                if field not in self.model_fields_set:
+                    setattr(self, field, GROQ_DEFAULT_MODEL)
+        return self
 
     @field_validator("cors_origins", mode="before")
     @classmethod

@@ -57,3 +57,30 @@ def test_openai_chat_model_ignores_groq_settings():
     llm = build_chat_model(settings, "gpt-4o-mini")
     assert llm.openai_api_base is None
     assert llm.openai_api_key.get_secret_value() == "sk-test"
+
+
+def test_groq_defaults_to_groq_hosted_models():
+    settings = make_settings(llm_provider="groq", groq_api_key="gsk-test")
+    assert settings.chat_model == "openai/gpt-oss-20b"
+    assert settings.judge_model == "openai/gpt-oss-20b"
+
+
+def test_groq_keeps_explicitly_configured_models():
+    settings = make_settings(
+        llm_provider="groq", groq_api_key="gsk-test", chat_model="llama-3.3-70b-versatile"
+    )
+    assert settings.chat_model == "llama-3.3-70b-versatile"
+    assert settings.judge_model == "openai/gpt-oss-20b"
+
+
+def test_groq_model_defaults_apply_to_env_settings(monkeypatch):
+    monkeypatch.setenv("LLM_PROVIDER", "groq")
+    monkeypatch.setenv("GROQ_API_KEY", "gsk-test")
+    monkeypatch.setenv("JUDGE_MODEL", "openai/gpt-oss-120b")
+    settings = Settings(_env_file=None)
+    assert settings.chat_model == "openai/gpt-oss-20b"
+    assert settings.judge_model == "openai/gpt-oss-120b"
+
+
+def test_openai_model_defaults_unchanged():
+    assert make_settings(llm_provider="openai").chat_model == "gpt-4o-mini"
