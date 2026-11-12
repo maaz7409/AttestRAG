@@ -218,7 +218,7 @@ attest-rag/
 │   ├── src/pages/            Ask, Documents, Analytics
 │   ├── nginx.conf            Static hosting and /api reverse proxy (SSE-aware)
 │   └── Dockerfile
-├── ci/github-workflows/      CI and CD pipeline definitions (see below)
+├── .github/workflows/        CI and CD pipelines (see below)
 ├── docker-compose.yml        PostgreSQL + Qdrant + backend + frontend
 └── .env.example
 ```
@@ -227,8 +227,6 @@ attest-rag/
 
 - **CI** (`ci.yml`) runs on every push and pull request: ruff lint and format check, pytest against a real PostgreSQL service, frontend typecheck, tests and build, then a full `docker compose` build with an end-to-end smoke test through nginx.
 - **CD** (`cd.yml`) runs on pushes to `main`: it builds and pushes `backend` and `frontend` images to GitHub Container Registry, tagged `sha-<commit>` and `latest`. If you set the repository variable `DEPLOY_ENABLED=true` and the secrets `DEPLOY_HOST`, `DEPLOY_USER` and `DEPLOY_SSH_KEY`, it also deploys over SSH to any Docker host (an AWS EC2, GCP or Azure VM, a DigitalOcean droplet, …) with `docker compose pull && docker compose up -d`.
-
-> **Activating the workflows:** the definitions are in `ci/github-workflows/`, because the automated commit that created this project wasn't allowed to write to `.github/workflows/`. Move them with `git mv ci/github-workflows .github/workflows` (see [the note there](ci/github-workflows/README.md)) and push.
 
 ## Limitations and roadmap
 
