@@ -1,6 +1,7 @@
 """Model provider factory.
 
 ``LLM_PROVIDER=openai`` wires real OpenAI models through LangChain.
+``LLM_PROVIDER=groq`` uses Groq's OpenAI-compatible API for chat and judge models.
 ``LLM_PROVIDER=fake`` swaps in deterministic local components so the whole
 stack runs without network access or an API key (development, demos, CI).
 """
@@ -52,7 +53,7 @@ class HashingEmbeddings(Embeddings):
 
 
 def build_embeddings(settings: Settings) -> Embeddings:
-    if settings.llm_provider == "fake":
+    if settings.resolved_embedding_provider == "local":
         return HashingEmbeddings(dim=settings.vector_size)
 
     from langchain_openai import OpenAIEmbeddings
@@ -69,11 +70,16 @@ def build_embeddings(settings: Settings) -> Embeddings:
 def build_chat_model(settings: Settings, model: str, *, streaming: bool = True) -> BaseChatModel:
     from langchain_openai import ChatOpenAI
 
+    if settings.llm_provider == "groq":
+        api_key, base_url = settings.groq_api_key, settings.groq_base_url
+    else:
+        api_key, base_url = settings.openai_api_key, settings.openai_base_url
+
     return ChatOpenAI(
         model=model,
         temperature=settings.llm_temperature,
-        api_key=settings.openai_api_key,
-        base_url=settings.openai_base_url,
+        api_key=api_key,
+        base_url=base_url,
         streaming=streaming,
         max_retries=2,
         timeout=60,

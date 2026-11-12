@@ -1,10 +1,13 @@
 """Application settings, loaded from environment variables (and an optional `.env`)."""
 
 from functools import lru_cache
-from typing import Annotated, Literal
+from typing import Annotated, Literal, Self
 
-from pydantic import Field, field_validator
+from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
+
+# Used for CHAT_MODEL and JUDGE_MODEL when LLM_PROVIDER=groq and they are unset.
+GROQ_DEFAULT_MODEL = "openai/gpt-oss-20b"
 
 
 class Settings(BaseSettings):
@@ -24,11 +27,17 @@ class Settings(BaseSettings):
     )
 
     # --- Model provider ----------------------------------------------------
-    llm_provider: Literal["openai", "fake"] = "openai"
+    llm_provider: Literal["openai", "groq", "fake"] = "openai"
     openai_api_key: str | None = None
     openai_base_url: str | None = None
+    groq_api_key: str | None = None
+    groq_base_url: str = "https://api.groq.com/openai/v1"
     chat_model: str = "gpt-4o-mini"
     judge_model: str = "gpt-4o-mini"
+    # "openai" calls the embeddings API, "local" uses offline hashing embeddings.
+    # Unset means "openai" for the openai provider and "local" otherwise
+    # (Groq has no embeddings API).
+    embedding_provider: Literal["openai", "local"] | None = None
     embedding_model: str = "text-embedding-3-small"
     embedding_dim: int = 1536
     llm_temperature: float = 0.1
@@ -60,6 +69,21 @@ class Settings(BaseSettings):
     context_relevance_threshold: float = 0.4
     toxicity_threshold: float = 0.5
 
+    @model_validator(mode="after")
+    def _require_groq_api_key(self) -> Self:
+        # Without it, the OpenAI client would fall back to OPENAI_API_KEY and send it to Groq.
+        if self.llm_provider == "groq" and not self.groq_api_key:
+            raise ValueError("GROQ_API_KEY is required when LLM_PROVIDER=groq")
+        return self
+
+    @model_validator(mode="after")
+    def _apply_groq_model_defaults(self) -> Self:
+        if self.llm_provider == "groq":
+            for field in ("chat_model", "judge_model"):
+                if field not in self.model_fields_set:
+                    setattr(self, field, GROQ_DEFAULT_MODEL)
+        return self
+
     @field_validator("cors_origins", mode="before")
     @classmethod
     def _split_origins(cls, value: object) -> object:
@@ -72,9 +96,15 @@ class Settings(BaseSettings):
         return self.max_upload_mb * 1024 * 1024
 
     @property
+    def resolved_embedding_provider(self) -> Literal["openai", "local"]:
+        if self.embedding_provider is not None:
+            return self.embedding_provider
+        return "openai" if self.llm_provider == "openai" else "local"
+
+    @property
     def vector_size(self) -> int:
         """Dimensionality of the dense vectors stored in Qdrant."""
-        return self.embedding_dim if self.llm_provider == "openai" else 384
+        return self.embedding_dim if self.resolved_embedding_provider == "openai" else 384
 
 
 @lru_cache

@@ -44,6 +44,7 @@ def test_health_and_readiness(client: TestClient):
     ready = client.get("/api/ready").json()
     assert ready["status"] == "ok"
     assert ready["checks"] == {"postgres": "ok", "qdrant": "ok"}
+    assert ready["embedding_provider"] == "local"
 
 
 def test_document_lifecycle(client: TestClient, handbook_pdf: bytes):
