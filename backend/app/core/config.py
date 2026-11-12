@@ -32,7 +32,8 @@ class Settings(BaseSettings):
     chat_model: str = "gpt-4o-mini"
     judge_model: str = "gpt-4o-mini"
     # "openai" calls the embeddings API, "local" uses offline hashing embeddings.
-    # Unset means "local" for the fake provider and "openai" otherwise.
+    # Unset means "openai" for the openai provider and "local" otherwise
+    # (Groq has no embeddings API).
     embedding_provider: Literal["openai", "local"] | None = None
     embedding_model: str = "text-embedding-3-small"
     embedding_dim: int = 1536
@@ -80,7 +81,7 @@ class Settings(BaseSettings):
     def resolved_embedding_provider(self) -> Literal["openai", "local"]:
         if self.embedding_provider is not None:
             return self.embedding_provider
-        return "local" if self.llm_provider == "fake" else "openai"
+        return "openai" if self.llm_provider == "openai" else "local"
 
     @property
     def vector_size(self) -> int:

@@ -14,6 +14,8 @@ def make_settings(**overrides) -> Settings:
     [
         ("fake", None, "local"),
         ("openai", None, "openai"),
+        ("groq", None, "local"),
+        ("groq", "openai", "openai"),
         ("openai", "local", "local"),
         ("fake", "openai", "openai"),
     ],
