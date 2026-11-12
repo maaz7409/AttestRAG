@@ -70,6 +70,13 @@ class Settings(BaseSettings):
     toxicity_threshold: float = 0.5
 
     @model_validator(mode="after")
+    def _require_groq_api_key(self) -> Self:
+        # Without it, the OpenAI client would fall back to OPENAI_API_KEY and send it to Groq.
+        if self.llm_provider == "groq" and not self.groq_api_key:
+            raise ValueError("GROQ_API_KEY is required when LLM_PROVIDER=groq")
+        return self
+
+    @model_validator(mode="after")
     def _apply_groq_model_defaults(self) -> Self:
         if self.llm_provider == "groq":
             for field in ("chat_model", "judge_model"):

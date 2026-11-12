@@ -21,7 +21,9 @@ def make_settings(**overrides) -> Settings:
     ],
 )
 def test_embedding_provider_resolution(llm_provider, embedding_provider, expected):
-    settings = make_settings(llm_provider=llm_provider, embedding_provider=embedding_provider)
+    settings = make_settings(
+        llm_provider=llm_provider, embedding_provider=embedding_provider, groq_api_key="gsk-test"
+    )
     assert settings.resolved_embedding_provider == expected
 
 
@@ -84,3 +86,8 @@ def test_groq_model_defaults_apply_to_env_settings(monkeypatch):
 
 def test_openai_model_defaults_unchanged():
     assert make_settings(llm_provider="openai").chat_model == "gpt-4o-mini"
+
+
+def test_groq_requires_api_key():
+    with pytest.raises(ValueError, match="GROQ_API_KEY is required"):
+        make_settings(llm_provider="groq", groq_api_key=None)
