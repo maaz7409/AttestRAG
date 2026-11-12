@@ -1,0 +1,68 @@
+# Attest RAG: the full stack in one command.
+#
+#   cp .env.example .env   # add your OPENAI_API_KEY (or set LLM_PROVIDER=fake)
+#   docker compose up --build
+#
+# UI: http://localhost:3000   API docs: http://localhost:8000/docs
+#
+# In production the CD pipeline sets IMAGE_PREFIX / IMAGE_TAG and runs
+# `docker compose pull && docker compose up -d --no-build` with prebuilt images.
+
+name: attest-rag
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-attestrag}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-attestrag}
+      POSTGRES_DB: ${POSTGRES_DB:-attestrag}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  qdrant:
+    image: qdrant/qdrant:v1.20.0
+    restart: unless-stopped
+    volumes:
+      - qdrant-data:/qdrant/storage
+    ports:
+      - "6333:6333" # REST API, plus the Qdrant web UI at /dashboard
+
+  backend:
+    build: ./backend
+    image: ${IMAGE_PREFIX:-attest-rag}/backend:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-attestrag}:${POSTGRES_PASSWORD:-attestrag}@postgres:5432/${POSTGRES_DB:-attestrag}
+      QDRANT_URL: http://qdrant:6333
+      LLM_PROVIDER: ${LLM_PROVIDER:-openai}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build: ./frontend
+    image: ${IMAGE_PREFIX:-attest-rag}/frontend:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "3000:80"
+
+volumes:
+  postgres-data:
+  qdrant-data:
