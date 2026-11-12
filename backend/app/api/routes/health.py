@@ -23,6 +23,7 @@ async def ready(response: Response, services: Services = Depends(get_services)) 
         "status": "ok" if healthy else "degraded",
         "checks": checks,
         "provider": services.settings.llm_provider,
+        "embedding_provider": services.settings.resolved_embedding_provider,
         "guardrail_mode": services.settings.guardrail_mode,
         "judge_enabled": services.settings.judge_enabled,
         "indexed_chunks": len(services.bm25),
