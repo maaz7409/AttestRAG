@@ -24,9 +24,11 @@ class Settings(BaseSettings):
     )
 
     # --- Model provider ----------------------------------------------------
-    llm_provider: Literal["openai", "fake"] = "openai"
+    llm_provider: Literal["openai", "groq", "fake"] = "openai"
     openai_api_key: str | None = None
     openai_base_url: str | None = None
+    groq_api_key: str | None = None
+    groq_base_url: str = "https://api.groq.com/openai/v1"
     chat_model: str = "gpt-4o-mini"
     judge_model: str = "gpt-4o-mini"
     # "openai" calls the embeddings API, "local" uses offline hashing embeddings.
