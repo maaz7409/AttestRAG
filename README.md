@@ -88,6 +88,15 @@ Then open:
 LLM_PROVIDER=fake docker compose up --build
 ```
 
+**Using Groq instead?** Get a key at [console.groq.com](https://console.groq.com) and set this in `.env`:
+
+```bash
+LLM_PROVIDER=groq
+GROQ_API_KEY=gsk_...
+```
+
+Answers and the judge then use `openai/gpt-oss-20b` on Groq. Groq has no embeddings API, so dense search uses the built-in local embeddings (BM25 keyword search is unchanged). Each question makes two model calls (answer + judge) of a few thousand tokens each, so on Groq's free tier, leave some time between questions to stay under the tokens-per-minute limit.
+
 ### Using the app
 
 1. Go to **Documents** and drop in one or more PDFs. Each one is parsed, chunked, embedded and indexed in a few seconds.
@@ -134,10 +143,13 @@ All settings are environment variables (see [`.env.example`](.env.example)).
 
 | Variable | Default | Description |
 |---|---|---|
-| `LLM_PROVIDER` | `openai` | `openai` or `fake` (fully offline) |
+| `LLM_PROVIDER` | `openai` | `openai`, `groq` or `fake` (fully offline) |
 | `OPENAI_API_KEY` | – | Required when `LLM_PROVIDER=openai` |
 | `OPENAI_BASE_URL` | – | Optional: any OpenAI-compatible endpoint (Azure OpenAI, a gateway, …) |
-| `CHAT_MODEL` / `JUDGE_MODEL` | `gpt-4o-mini` | Answer generator / evaluator models |
+| `GROQ_API_KEY` | – | Required when `LLM_PROVIDER=groq` |
+| `GROQ_BASE_URL` | `https://api.groq.com/openai/v1` | Groq's OpenAI-compatible endpoint |
+| `CHAT_MODEL` / `JUDGE_MODEL` | `gpt-4o-mini` (`openai/gpt-oss-20b` on Groq) | Answer generator / evaluator models |
+| `EMBEDDING_PROVIDER` | `openai` with OpenAI, otherwise `local` | `openai` (embeddings API) or `local` (offline hashing embeddings, 384-d) |
 | `EMBEDDING_MODEL` / `EMBEDDING_DIM` | `text-embedding-3-small` / `1536` | Dense embedding model and vector size |
 | `DATABASE_URL` | `postgresql+asyncpg://…localhost…` | PostgreSQL connection string |
 | `QDRANT_URL` / `QDRANT_API_KEY` / `QDRANT_COLLECTION` | `http://localhost:6333` / – / `attestrag_chunks` | Vector store (`:memory:` for embedded mode) |
