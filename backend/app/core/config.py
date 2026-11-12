@@ -29,6 +29,9 @@ class Settings(BaseSettings):
     openai_base_url: str | None = None
     chat_model: str = "gpt-4o-mini"
     judge_model: str = "gpt-4o-mini"
+    # "openai" calls the embeddings API, "local" uses offline hashing embeddings.
+    # Unset means "local" for the fake provider and "openai" otherwise.
+    embedding_provider: Literal["openai", "local"] | None = None
     embedding_model: str = "text-embedding-3-small"
     embedding_dim: int = 1536
     llm_temperature: float = 0.1
@@ -72,9 +75,15 @@ class Settings(BaseSettings):
         return self.max_upload_mb * 1024 * 1024
 
     @property
+    def resolved_embedding_provider(self) -> Literal["openai", "local"]:
+        if self.embedding_provider is not None:
+            return self.embedding_provider
+        return "local" if self.llm_provider == "fake" else "openai"
+
+    @property
     def vector_size(self) -> int:
         """Dimensionality of the dense vectors stored in Qdrant."""
-        return self.embedding_dim if self.llm_provider == "openai" else 384
+        return self.embedding_dim if self.resolved_embedding_provider == "openai" else 384
 
 
 @lru_cache

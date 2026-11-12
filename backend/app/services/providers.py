@@ -52,7 +52,7 @@ class HashingEmbeddings(Embeddings):
 
 
 def build_embeddings(settings: Settings) -> Embeddings:
-    if settings.llm_provider == "fake":
+    if settings.resolved_embedding_provider == "local":
         return HashingEmbeddings(dim=settings.vector_size)
 
     from langchain_openai import OpenAIEmbeddings
